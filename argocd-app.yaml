@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-demo
+  namespace: argocd
+spec:
+  project: default
+
+  # Source Git
+  source:
+    repoURL: https://github.com/magatte365/argocd-demo-nginx.git
+    targetRevision: main
+    path: deployment
+
+  # Destination Kubernetes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  # Politique de synchronisation automatique
+  syncPolicy:
+    automated:
+      prune: true        # Supprime les ressources retirées du Git
+      selfHeal: true     # Corrige automatiquement les dérives
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
